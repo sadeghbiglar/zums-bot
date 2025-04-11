@@ -8,16 +8,19 @@ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $stmt = $db->query("SELECT DISTINCT message_type FROM messages");
 $messageTypes = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-// استخراج شناسه‌های کاربران
-$stmt = $db->query("SELECT DISTINCT user_id FROM messages");
-$userIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+// استخراج شناسه‌های کاربران و نام آنها
+$stmt = $db->query("SELECT DISTINCT user_id, first_name FROM messages");
+$userData = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // ساخت آرایه برای ذخیره آمار به تفکیک کاربر و نوع پیام
 $stats = [];
-foreach ($userIds as $userId) {
+foreach ($userData as $user) {
+    $userId = $user['user_id'];
+    $userName = $user['first_name'];
     foreach ($messageTypes as $type) {
         $stats[$userId][$type] = 0;  // مقدار اولیه برای هر کاربر و هر نوع پیام صفر است
     }
+    $stats[$userId]['name'] = $userName; // ذخیره نام کاربر
 }
 
 // گرفتن آمار از دیتابیس و شمارش تعداد هر نوع پیام برای هر کاربر
@@ -29,8 +32,37 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 }
 
 // ساخت جدول HTML برای نمایش آمار
-$html = "<table border='1'>";
-$html .= "<tr><th>کاربر</th>";
+$html = "
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-family: Arial, sans-serif;
+    }
+    th, td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+    th {
+        background-color: #f2f2f2;
+        color: #333;
+    }
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    tr:hover {
+        background-color: #e2e2e2;
+    }
+    td {
+        font-size: 14px;
+    }
+</style>
+<table>
+    <tr>
+        <th>کاربر</th>
+        <th>شناسه کاربر (ID)</th>";
 
 // اضافه کردن ستون‌های مربوط به انواع پیام‌ها
 foreach ($messageTypes as $type) {
@@ -39,12 +71,15 @@ foreach ($messageTypes as $type) {
 $html .= "<th>جمع</th></tr>";
 
 // اضافه کردن ردیف‌ها برای هر کاربر
-foreach ($userIds as $userId) {
-    $html .= "<tr><td>$userId</td>";
+foreach ($stats as $userId => $data) {
+    $userName = $data['name'];  // نام کاربر از آرایه استخراج می‌شود
+    unset($data['name']);  // حذف نام کاربر از آرایه برای اینکه در جدول تکرار نشود
+
+    $html .= "<tr><td>$userName</td><td>$userId</td>";
     $total = 0;
 
     foreach ($messageTypes as $type) {
-        $count = $stats[$userId][$type];
+        $count = isset($data[$type]) ? $data[$type] : 0;
         $html .= "<td>$count</td>";
         $total += $count;  // جمع تعداد پیام‌ها برای این کاربر
     }
