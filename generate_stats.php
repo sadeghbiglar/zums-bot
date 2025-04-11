@@ -70,22 +70,35 @@ foreach ($messageTypes as $type) {
 }
 $html .= "<th>جمع</th></tr>";
 
+// جمع کل برای همه کاربران
+$totalCounts = array_fill_keys($messageTypes, 0);  // مقدار اولیه برای هر نوع پیام صفر است
+$totalAllUsers = 0;  // جمع کل برای همه کاربران
+
 // اضافه کردن ردیف‌ها برای هر کاربر
 foreach ($stats as $userId => $data) {
     $userName = $data['name'];  // نام کاربر از آرایه استخراج می‌شود
     unset($data['name']);  // حذف نام کاربر از آرایه برای اینکه در جدول تکرار نشود
 
     $html .= "<tr><td>$userName</td><td>$userId</td>";
-    $total = 0;
+    $userTotal = 0;
 
     foreach ($messageTypes as $type) {
         $count = isset($data[$type]) ? $data[$type] : 0;
         $html .= "<td>$count</td>";
-        $total += $count;  // جمع تعداد پیام‌ها برای این کاربر
+        $userTotal += $count;
+        $totalCounts[$type] += $count;  // جمع کل هر نوع پیام
     }
 
-    $html .= "<td>$total</td></tr>";  // نمایش جمع در آخرین ستون
+    $html .= "<td>$userTotal</td></tr>";  // نمایش جمع برای این کاربر
+    $totalAllUsers += $userTotal;  // جمع کل برای همه کاربران
 }
+
+// ردیف جمع کل در آخر جدول
+$html .= "<tr><td colspan='2'>جمع کل</td>";
+foreach ($messageTypes as $type) {
+    $html .= "<td>{$totalCounts[$type]}</td>";
+}
+$html .= "<td>$totalAllUsers</td></tr>";
 
 $html .= "</table>";
 
