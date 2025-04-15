@@ -70,7 +70,7 @@ while (true) {
             $text = $message['text'] ?? null;
 
             $messageType = getMessageType($message);
-            $isCaptionValid = $caption && str_starts_with($caption, '*') && mb_strlen($caption) > 3;
+            $isCaptionValid = $caption && mb_strlen($caption) > 3 && str_ends_with($caption, '@webda_zums_asl');
 
             if ($text === '/stats') {
                 $stmt = $db->prepare("
@@ -92,13 +92,12 @@ while (true) {
                 foreach ($stats as $user => $types) {
                     $responseText .= "کاربر $user:\n";
                     foreach ($types as $type => $count) {
-                        $responseText  .= "  $type: $count\n";
+                        $responseText .= "  $type: $count\n";
                     }
                 }
 
                 $sendUrl = "https://tapi.bale.ai/bot$token/sendMessage";
-                // $data = ['chat_id' => $chatId, 'text' => $responseText];
-                $data = ['chat_id' =>  6136667699, 'text' => $responseText];
+                $data = ['chat_id' => $chatId, 'text' => $responseText];
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $sendUrl);
                 curl_setopt($ch, CURLOPT_POST, true);
@@ -112,7 +111,7 @@ while (true) {
                 // برای پیام‌های متنی
                 if ($messageType === 'text') {
                     $text = trim($text);
-                    if (str_starts_with($text, '*') && mb_strlen($text) > 3) {
+                    if (mb_strlen($text) > 3 && str_ends_with($text, '@webda_zums_asl')) {
                         $stmt = $db->prepare("INSERT INTO messages 
                             (update_id, user_id, chat_id, message_type, first_name, last_name, message_date, message_text) 
                             VALUES (:update_id, :user_id, :chat_id, :type, :first_name, :last_name, :message_date, :message_text)");
