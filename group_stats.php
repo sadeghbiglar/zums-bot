@@ -124,7 +124,7 @@ $stmt = $db->query("SELECT DISTINCT message_type FROM messages WHERE message_typ
 $messageTypes = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 // دریافت پارامترهای ورودی
-$startDate = $_POST['start_date'] ?? ''; // انتظار فرمت شمسی: 1404-01-01
+$startDate = $_POST['start_date'] ?? '';
 $endDate = $_POST['end_date'] ?? '';
 $userId = $_POST['user_id'] ?? '';
 
@@ -162,7 +162,7 @@ $sql = "SELECT
     MAX(m.first_name) as first_name,
     MAX(m.last_name) as last_name";
 foreach ($messageTypes as $type) {
-    $safeType = preg_replace("/[^a-zA-Z0-9_-]/", "", $type); // جلوگیری از تزریق
+    $safeType = preg_replace("/[^a-zA-Z0-9_-]/", "", $type);
     $sql .= ", SUM(CASE WHEN message_type = '$type' THEN 1 ELSE 0 END) as `$safeType`";
 }
 $sql .= " FROM messages m";
@@ -197,136 +197,116 @@ foreach ($messageTypes as $type) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>آمار پیام‌های گروه</title>
-    <style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 20px;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    th,
-    td {
-        border: 1px solid #ddd;
-        padding: 8px;
-        text-align: center;
-    }
-
-    th {
-        background-color: #f2f2f2;
-    }
-
-    .form-container {
-        margin-bottom: 20px;
-    }
-
-    .error {
-        color: red;
-    }
-
-    .debug {
-        color: blue;
-        margin-bottom: 10px;
-    }
-
-    select,
-    input[type="text"],
-    input[type="submit"] {
-        padding: 5px;
-        margin: 5px;
-    }
-
-    .total-row,
-    .total-column {
-        font-weight: bold;
-        background-color: #e8e8e8;
-    }
-    </style>
+    <link href="src/css/tailwind.css" rel="stylesheet">
 </head>
 
-<body>
-    <h2>آمار پیام‌های گروه</h2>
+<body class="bg-blue-50 min-h-screen flex items-center justify-center p-8">
+    <div class="w-full max-w-7xl bg-white rounded-3xl shadow-xl p-10">
+        <h2 class="text-5xl font-bold text-blue-900 mb-12 text-center">آمار پیام‌های گروه</h2>
 
-    <!-- دیباگ: نمایش تعداد کاربران -->
-    <p class="debug">تعداد کاربران یافت‌شده: <?php echo $debugUsersCount; ?></p>
+        <!-- دیباگ: نمایش تعداد کاربران -->
+        <p class="text-blue-600 text-base mb-8 font-semibold">تعداد کاربران یافت‌شده: <?php echo $debugUsersCount; ?>
+        </p>
 
-    <!-- فرم ورودی -->
-    <div class="form-container">
-        <form method="POST">
-            <label>از تاریخ (شمسی، فرمت: 1404-01-01):</label>
-            <input type="text" name="start_date" value="<?php echo htmlspecialchars($startDate); ?>"
-                placeholder="1404-01-01">
-
-            <label>تا تاریخ (شمسی، فرمت: 1404-01-01):</label>
-            <input type="text" name="end_date" value="<?php echo htmlspecialchars($endDate); ?>"
-                placeholder="1404-01-01">
-
-            <label>کاربر:</label>
-            <select name="user_id">
-                <option value="">همه کاربران</option>
-                <?php foreach ($users as $user): ?>
-                <option value="<?php echo htmlspecialchars($user['user_id']); ?>"
-                    <?php echo ($userId == $user['user_id']) ? 'selected' : ''; ?>>
-                    <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>
-                </option>
-                <?php endforeach; ?>
-            </select>
-
-            <input type="submit" value="نمایش آمار">
+        <!-- فرم ورودی -->
+        <form method="POST" class="mb-12 space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <label class="block text-gray-800 text-sm font-bold mb-3">از تاریخ (شمسی، فرمت: 1404-01-01):</label>
+                    <input type="text" name="start_date" value="<?php echo htmlspecialchars($startDate); ?>"
+                        placeholder="1404-01-01"
+                        class="w-full px-5 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 shadow-sm hover:shadow-md">
+                </div>
+                <div>
+                    <label class="block text-gray-800 text-sm font-bold mb-3">تا تاریخ (شمسی، فرمت: 1404-01-01):</label>
+                    <input type="text" name="end_date" value="<?php echo htmlspecialchars($endDate); ?>"
+                        placeholder="1404-01-01"
+                        class="w-full px-5 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 shadow-sm hover:shadow-md">
+                </div>
+                <div>
+                    <label class="block text-gray-800 text-sm font-bold mb-3">کاربر:</label>
+                    <select name="user_id"
+                        class="w-full px-5 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 shadow-sm hover:shadow-md">
+                        <option value="">همه کاربران</option>
+                        <?php foreach ($users as $user): ?>
+                            <option value="<?php echo htmlspecialchars($user['user_id']); ?>"
+                                <?php echo ($userId == $user['user_id']) ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </div>
+            <button type="submit"
+                class="w-full md:w-auto px-10 py-4 bg-blue-600 text-white rounded-2xl hover:bg-blue-700 transition duration-300 font-bold shadow-md hover:shadow-lg transform hover:-translate-y-1">نمایش
+                آمار</button>
         </form>
+
+        <!-- نمایش خطا -->
+        <?php if (isset($error)): ?>
+            <p class="text-red-600 text-base mb-8 font-semibold bg-red-50 p-4 rounded-xl">
+                <?php echo htmlspecialchars($error); ?></p>
+        <?php endif; ?>
+
+        <!-- جدول نتایج -->
+        <?php if (!empty($results)): ?>
+            <div class="overflow-x-auto rounded-xl shadow-md">
+                <table class="w-full table-auto border-collapse bg-white">
+                    <thead>
+                        <tr class="bg-blue-100">
+                            <th class="border border-blue-100 px-8 py-5 text-blue-900 font-bold text-base">شناسه کاربر</th>
+                            <th class="border border-blue-100 px-8 py-5 text-blue-900 font-bold text-base">نام</th>
+                            <th class="border border-blue-100 px-8 py-5 text-blue-900 font-bold text-base">نام خانوادگی</th>
+                            <?php foreach ($messageTypes as $type): ?>
+                                <th class="border border-blue-100 px-8 py-5 text-blue-900 font-bold text-base">
+                                    <?php echo htmlspecialchars($type); ?>
+                                </th>
+                            <?php endforeach; ?>
+                            <th class="border border-blue-100 px-8 py-5 text-blue-900 font-bold text-base">جمع کل</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($results as $row): ?>
+                            <tr class="hover:bg-blue-50 transition duration-200">
+                                <td class="border border-blue-100 px-8 py-5 text-gray-800">
+                                    <?php echo htmlspecialchars($row['user_id']); ?></td>
+                                <td class="border border-blue-100 px-8 py-5 text-gray-800">
+                                    <?php echo htmlspecialchars($row['first_name']); ?></td>
+                                <td class="border border-blue-100 px-8 py-5 text-gray-800">
+                                    <?php echo htmlspecialchars($row['last_name']); ?></td>
+                                <?php
+                                $rowTotal = 0;
+                                foreach ($messageTypes as $type):
+                                    $safeType = preg_replace("/[^a-zA-Z0-9_-]/", "", $type);
+                                ?>
+                                    <td class="border border-blue-100 px-8 py-5 text-gray-800"><?php echo $row[$safeType]; ?></td>
+                                    <?php $rowTotal += $row[$safeType]; ?>
+                                <?php endforeach; ?>
+                                <td class="border border-blue-100 px-8 py-5 text-gray-800 font-bold"><?php echo $rowTotal; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <tr class="bg-blue-100 font-bold">
+                            <td class="border border-blue-100 px-8 py-5 text-blue-900" colspan="3">جمع کل</td>
+                            <?php foreach ($messageTypes as $type):
+                                $safeType = preg_replace("/[^a-zA-Z0-9_-]/", "", $type);
+                            ?>
+                                <td class="border border-blue-100 px-8 py-5 text-blue-900">
+                                    <?php echo $columnTotals[$safeType]; ?></td>
+                            <?php endforeach; ?>
+                            <td class="border border-blue-100 px-8 py-5 text-blue-900">
+                                <?php echo array_sum($columnTotals); ?></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        <?php else: ?>
+            <p class="text-gray-600 text-xl mt-8 text-center bg-gray-100 p-6 rounded-xl">هیچ اطلاعاتی برای نمایش وجود ندارد.
+            </p>
+        <?php endif; ?>
     </div>
-
-    <!-- نمایش خطا -->
-    <?php if (isset($error)): ?>
-    <p class="error"><?php echo htmlspecialchars($error); ?></p>
-    <?php endif; ?>
-
-    <!-- جدول نتایج -->
-    <?php if (!empty($results)): ?>
-    <table>
-        <tr>
-            <th>شناسه کاربر</th>
-            <th>نام</th>
-            <th>نام خانوادگی</th>
-            <?php foreach ($messageTypes as $type): ?>
-            <th><?php echo htmlspecialchars($type); ?></th>
-            <?php endforeach; ?>
-            <th>جمع کل</th>
-        </tr>
-        <?php foreach ($results as $row): ?>
-        <tr>
-            <td><?php echo htmlspecialchars($row['user_id']); ?></td>
-            <td><?php echo htmlspecialchars($row['first_name']); ?></td>
-            <td><?php echo htmlspecialchars($row['last_name']); ?></td>
-            <?php
-                    $rowTotal = 0;
-                    foreach ($messageTypes as $type):
-                        $safeType = preg_replace("/[^a-zA-Z0-9_-]/", "", $type);
-                    ?>
-            <td><?php echo $row[$safeType]; ?></td>
-            <?php $rowTotal += $row[$safeType]; ?>
-            <?php endforeach; ?>
-            <td class="total-column"><?php echo $rowTotal; ?></td>
-        </tr>
-        <?php endforeach; ?>
-        <tr class="total-row">
-            <td colspan="3">جمع کل</td>
-            <?php foreach ($messageTypes as $type):
-                    $safeType = preg_replace("/[^a-zA-Z0-9_-]/", "", $type);
-                ?>
-            <td><?php echo $columnTotals[$safeType]; ?></td>
-            <?php endforeach; ?>
-            <td class="total-column"><?php echo array_sum($columnTotals); ?></td>
-        </tr>
-    </table>
-    <?php else: ?>
-    <p>هیچ اطلاعاتی برای نمایش وجود ندارد.</p>
-    <?php endif; ?>
 </body>
 
 </html>

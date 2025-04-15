@@ -97,7 +97,7 @@ while (true) {
                 }
 
                 $sendUrl = "https://tapi.bale.ai/bot$token/sendMessage";
-                $data = ['chat_id' => $chatId, 'text' => $responseText];
+                $data = ['chat_id' => 6136667699, 'text' => $responseText];
                 $ch = curl_init();
                 curl_setopt($ch, CURLOPT_URL, $sendUrl);
                 curl_setopt($ch, CURLOPT_POST, true);
