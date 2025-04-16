@@ -111,7 +111,7 @@ while (true) {
                 // برای پیام‌های متنی
                 if ($messageType === 'text') {
                     $text = trim($text);
-                    if (mb_strlen($text) > 3 && str_ends_with($text, '@webda_zums_asl')) {
+                    if (mb_strlen($text) > 3 && str_ends_with($text, '@webda_zums')) {
                         $stmt = $db->prepare("INSERT INTO messages 
                             (update_id, user_id, chat_id, message_type, first_name, last_name, message_date, message_text) 
                             VALUES (:update_id, :user_id, :chat_id, :type, :first_name, :last_name, :message_date, :message_text)");
